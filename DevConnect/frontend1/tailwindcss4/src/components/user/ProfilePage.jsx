@@ -6,8 +6,6 @@ import { UserPlus, UserMinus, Edit, PlusCircle, X } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
 import { useAuth } from '../../context/AuthContext';
-import UserPosts from '../user/UserPosts';
-
 //import Post from "../Post"; // Import Post component
 const DEFAULT_PROFILE_PIC = "https://wallpaperaccess.com/full/1111980.jpg";
 
@@ -99,7 +97,7 @@ export default function ProfilePage() {
         bio: user.bio || '',
         location: user.location || '',
         birth_date: user.birth_date || '',
-        profile_picture: user.profile_picture || null,
+        profile_picture: user.profile_picture,
         is_followed: user.is_followed || false,
         followers_count: user.followers_count || 0,
         following_count: user.following_count || 0
@@ -220,185 +218,204 @@ export default function ProfilePage() {
   const avatarUrl = imageError ? DEFAULT_PROFILE_PIC : (previewImage || user.profile_picture || DEFAULT_PROFILE_PIC);
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 flex items-center justify-center">
-      
-      {/* Glassmorphism Background Layer */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-  
-      <div className="relative max-w-4xl mx-auto px-6 pt-20 pb-12 w-full">
-        <div className="bg-white/20 backdrop-blur-md shadow-lg rounded-lg overflow-hidden transform transition duration-300 hover:scale-105">
-          
-          {/* Header Section */}
-          <div className="px-6 py-5 border-b border-gray-300 flex justify-between items-center">
-            <h3 className="text-2xl font-bold text-white drop-shadow-lg">👤 Profile Information</h3>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 py-8">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        {/* Header Section */}
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Information</h3>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setShowCreatePost(!showCreatePost)}
-                className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition transform hover:scale-105"
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
-                {showCreatePost ? "Cancel Post" : "Create Post"}
+                <PlusCircle className="w-4 h-4 mr-2" />
+                {showCreatePost ? 'Cancel Post' : 'Create Post'}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(!editing)}
-                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition transform hover:scale-105"
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                {editing ? "Cancel" : "Edit Profile"}
+                <Edit className="w-4 h-4 mr-2" />
+                {editing ? 'Cancel' : 'Edit Profile'}
               </button>
-            </div>
-          </div>
-  
-          {/* Create Post Section */}
-          {showCreatePost && (
-            <div className="px-6 py-5 border-b border-gray-300">
-              <form onSubmit={handleCreatePost}>
-                <textarea
-                  value={postContent}
-                  onChange={(e) => setPostContent(e.target.value)}
-                  placeholder="What's on your mind?"
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  rows="3"
-                />
-                
-                {postPreview && (
-                  <div className="relative my-3">
-                    <img src={postPreview} alt="Preview" className="max-h-96 object-contain rounded-lg shadow-md" />
-                    <button
-                      type="button"
-                      onClick={() => { setPostImage(null); setPostPreview(""); }}
-                      className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-1 shadow-md"
-                    >
-                      ✖
-                    </button>
-                  </div>
-                )}
-  
-                {postError && <div className="text-red-500 mb-2">{postError}</div>}
-  
-                <div className="flex justify-between items-center mt-4">
-                  <label className="cursor-pointer text-indigo-300 hover:text-indigo-400">
-                    <input type="file" accept="image/*" onChange={handlePostImageChange} className="hidden" />
-                    📸 Add Photo
-                  </label>
-  
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreatePost(false)}
-                      className="px-4 py-2 rounded-lg border border-gray-300 text-white hover:bg-gray-100 hover:text-gray-800"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={postLoading || (!postContent && !postImage)}
-                      className={`px-4 py-2 rounded-lg transition transform hover:scale-105 ${
-                        postLoading || (!postContent && !postImage)
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-indigo-600 hover:bg-indigo-700 text-white"
-                      }`}
-                    >
-                      {postLoading ? "Posting..." : "Post"}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          )}
-  
-          {/* Profile Picture Section */}
-          <div className="px-6 py-5 flex justify-center">
-            <div className="relative">
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                onError={handleImageError}
-                className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg"
-              />
-            </div>
-          </div>
-  
-          {/* Profile Edit Form */}
-          {editing ? (
-            <form onSubmit={handleProfileUpdate} className="px-6 py-5 border-t border-gray-300">
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-white font-medium">Profile Picture</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileImageChange}
-                    className="mt-2 block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
-                  />
-                </div>
-  
-                <div>
-                  <label className="block text-white font-medium">Bio</label>
-                  <textarea
-                    rows={3}
-                    className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-                    value={profileData.bio}
-                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                  />
-                </div>
-  
-                <div>
-                  <label className="block text-white font-medium">Location</label>
-                  <input
-                    type="text"
-                    className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-                    value={profileData.location}
-                    onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                  />
-                </div>
-  
-                <div>
-                  <label className="block text-white font-medium">Birth Date</label>
-                  <input
-                    type="date"
-                    className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-                    value={profileData.birth_date}
-                    onChange={(e) => setProfileData({ ...profileData, birth_date: e.target.value })}
-                  />
-                </div>
-  
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="py-2 px-4 border border-transparent shadow-md text-white bg-indigo-600 hover:bg-indigo-700 transition transform hover:scale-105 rounded-lg"
-                  >
-                    {loading ? "Saving..." : "Save"}
-                  </button>
-                </div>
-              </div>
-            </form>
-          ) : (
-            <div className="text-center text-white py-5">
-              <h2 className="text-2xl font-bold">{user.username}</h2>
-              <p className="mt-1">{user.bio || "-"}</p>
-            </div>
-          )}
-  
-          {/* Profile Stats */}
-          <div className="px-6 py-5 border-t border-gray-300 flex justify-center gap-8 text-white">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{profileData.followers_count}</div>
-              <div className="text-gray-300">Followers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{profileData.following_count}</div>
-              <div className="text-gray-300">Following</div>
             </div>
           </div>
         </div>
 
+        {/* Create Post Section */}
+        {showCreatePost && (
+          <div className="border-t border-gray-200">
+            <div className="px-4 py-5 sm:px-6">
+              <div className="bg-white rounded-lg p-4 mb-4">
+                <form onSubmit={handleCreatePost}>
+                  <textarea
+                    value={postContent}
+                    onChange={(e) => setPostContent(e.target.value)}
+                    placeholder="What's on your mind?"
+                    className="w-full p-2 border rounded-lg mb-2 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    rows="3"
+                  />
+                  
+                  {postPreview && (
+                    <div className="relative mb-2">
+                      <img
+                        src={postPreview}
+                        alt="Preview"
+                        className="max-h-96 object-contain rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPostImage(null);
+                          setPostPreview('');
+                        }}
+                        className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
 
+                  {postError && <div className="text-red-500 mb-2">{postError}</div>}
 
-          <UserPosts/>
+                  <div className="flex justify-between items-center mt-4">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePostImageChange}
+                        className="hidden"
+                      />
+                      <span className="text-indigo-500 hover:text-indigo-600">Add Photo</span>
+                    </label>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowCreatePost(false)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={postLoading || (!postContent && !postImage)}
+                        className={`px-4 py-2 rounded-lg ${
+                          postLoading || (!postContent && !postImage)
+                            ? 'bg-gray-300 cursor-not-allowed'
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                        }`}
+                      >
+                        {postLoading ? 'Posting...' : 'Post'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Picture Section */}
+        <div className="px-4 py-5 sm:px-6 flex justify-center">
+          <div className="relative">
+            <img
+              src={avatarUrl}
+              alt="Profile"
+              onError={handleImageError}
+              className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg"
+            />
+          </div>
+        </div>
+
+        {/* Profile Edit Form */}
+        {editing ? (
+          <form onSubmit={handleProfileUpdate} className="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfileImageChange}
+                  className="mt-1 block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-indigo-50 file:text-indigo-700
+                    hover:file:bg-indigo-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Bio</label>
+                <textarea
+                  rows={3}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Location</label>
+                <input
+                  type="text"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={profileData.location}
+                  onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Birth Date</label>
+                <input
+                  type="date"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={profileData.birth_date}
+                  onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {loading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          <div>
+            <div className="flex justify-center gap-8">
+              <p className="text-2xl font-bold">{user.username}</p>
+            </div>
+            <div className="flex justify-center gap-8">
+              <p className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {user.bio || '-'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Stats */}
+        <div className="px-4 py-5 sm:px-6 flex justify-center gap-8">
+          <div className="text-center">
+            <div className="text-2xl font-bold">{profileData.followers_count}</div>
+            <div className="text-gray-500">Followers</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold">{profileData.following_count}</div>
+            <div className="text-gray-500">Following</div>
+          </div>
+        </div>
       </div>
     </div>
   );
-  
 }

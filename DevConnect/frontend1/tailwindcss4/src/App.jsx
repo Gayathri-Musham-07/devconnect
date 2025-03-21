@@ -33,7 +33,7 @@ function App() {
                     </PrivateRoute>
                   } 
                 />
-                 <Route path="/" element={<Navigate to="/home" replace />} />
+                 <Route path="/home" element={<Navigate to="/home" replace />} />
                  <Route path="/following-feed" element={<FollowingFeed />} />
                 <Route 
                   path="/profile" 

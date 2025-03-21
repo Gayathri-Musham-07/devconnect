@@ -1,42 +1,36 @@
+// src/pages/Home.jsx
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PostList from '../components/PostList';
+
+import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handlePostCreated = () => {
-    setRefreshKey((prevKey) => prevKey + 1);
+    setRefreshKey(prevKey => prevKey + 1);
   };
 
   return (
-    <div className="relative pt-15 min-h-screen bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 flex items-center justify-center">
-      
-      {/* Glassmorphism Background Layer */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-
-      <div className="relative container mx-auto px-6 py-12 max-w-4xl">
-        {/* Header Section */}
-        <div className="mb-6 flex justify-between items-center bg-white/20 backdrop-blur-md p-4 rounded-lg shadow-lg">
-          <h1 className="text-3xl font-extrabold text-white drop-shadow-lg">
-            🌟 Home Feed
-          </h1>
-          <Link
-            to="/createpost"
-            className="inline-flex items-center px-5 py-2.5 text-white bg-indigo-600 hover:bg-indigo-800 rounded-lg shadow-lg transition duration-300 transform hover:scale-105"
-          >
-            <PlusCircle className="w-6 h-6 mr-2" />
-            Create Post
-          </Link>
-        </div>
-
-        {/* Post List */}
-        <div className="space-y-6">
-          <PostList viewType="home" key={refreshKey} />
-        </div>
+    <div className="container mx-auto px-4 py-8 pt-20 max-w-4xl">
+      <div className="mb-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Home Feed</h1>
+        <Link
+          to="/createpost"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <PlusCircle className="w-5 h-5 mr-2" />
+          Create Post
+        </Link>
       </div>
+      
+      <PostList 
+        viewType="home" 
+        key={refreshKey}
+      />
     </div>
   );
 };

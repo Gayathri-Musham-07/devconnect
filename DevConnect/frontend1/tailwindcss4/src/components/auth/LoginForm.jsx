@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useAuth } from "../../context/AuthContext";
-import { addNotification } from "../../store/slices/notificationSlice";
+
+// src/components/auth/LoginForm.jsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useAuth } from '../../context/AuthContext';
+import { addNotification } from '../../store/slices/notificationSlice';
 
 export default function LoginForm() {
   const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
+    username: '',
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,74 +23,63 @@ export default function LoginForm() {
     try {
       const result = await login(credentials);
       if (result.success) {
-        dispatch(
-          addNotification({
-            type: "success",
-            message: "Welcome back!",
-          })
-        );
-        navigate("/profile");
+        dispatch(addNotification({
+          type: 'success',
+          message: 'Welcome back!'
+        }));
+        navigate('/profile');
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      dispatch(
-        addNotification({
-          type: "error",
-          message: error.message || "Login failed",
-        })
-      );
+      dispatch(addNotification({
+        type: 'error',
+        message: error.message || 'Login failed'
+      }));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 flex items-center justify-center">
-      
-      {/* Glassmorphism Background Layer */}
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-lg"></div>
-
-      <div className="relative bg-white/20 backdrop-blur-md p-8 rounded-lg shadow-lg max-w-md w-full space-y-6 transform transition duration-300 hover:scale-105">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-white drop-shadow-lg">
-            🔐 Sign in to your account
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
           </h2>
         </div>
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-3 border border-transparent rounded-lg bg-white/30 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Username"
-              value={credentials.username}
-              onChange={(e) =>
-                setCredentials({ ...credentials, username: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 border border-transparent rounded-lg bg-white/30 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Password"
-              value={credentials.password}
-              onChange={(e) =>
-                setCredentials({ ...credentials, password: e.target.value })
-              }
-            />
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <input
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Username"
+                value={credentials.username}
+                onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={credentials.password}
+                onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              />
+            </div>
           </div>
 
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-center font-medium text-white bg-indigo-600 hover:bg-indigo-800 rounded-lg shadow-md transition duration-300 transform hover:scale-105"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
